@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Navbar from "../components/HomePage/Navbar";
 import uploadedImg from "../assets/images/upload.png"
 import { usePuterStore } from "../store/lib/puterstore";
+import { useNavigate } from "react-router-dom";
 
 const Upload = () => {
     const { fs, kv, ai } = usePuterStore();
@@ -11,6 +12,8 @@ const Upload = () => {
     const [jobDescription, setJobDescription] = useState("");
     const [file, setFile] = useState(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -63,7 +66,23 @@ const Upload = () => {
 
     return (
         <div className="upload flex items-center flex-col">
-        <Navbar/>
+            <div>
+                <div className="bg-white w-170 rounded-2xl p-[10px]">
+                    <div className="flex justify-between items-baseline">
+                    <h1 className="font-bold">RESUMIND</h1>
+
+                    <div className="flex gap-2">
+                        <button
+                        onClick={() => navigate("/")}
+                        className="bg-[rgb(98,109,210)] rounded-2xl px-3 py-1 text-[rgb(220,224,250)] text-xs"
+                        >
+                        Home
+                        </button>
+
+                    </div>
+                    </div>
+                </div>
+            </div>
 
         <div className="flex flex-col items-center mt-16">
             <h1 className="font-bold text-4xl text-center w-[550px]">
