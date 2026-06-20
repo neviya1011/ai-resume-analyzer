@@ -4,6 +4,7 @@ import HeroSection from "./components/HomePage/HeroSection";
 import Cards from "./components/HomePage/Cards";
 import Auth from "./Routes/Auth";
 import { usePuterStore } from "./store/lib/puterstore";
+import Upload from "./Routes/Upload";
 
 import resume1 from "./assets/images/resume1.webp";
 import resume2 from "./assets/images/resume2.webp";
@@ -81,6 +82,15 @@ const App = () => {
   return (
     <Routes>
       <Route path="/auth" element={<Auth />} />
+
+      <Route
+        path="/upload"
+        element={
+          <ProtectedRoute>
+            <Upload />
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/"
