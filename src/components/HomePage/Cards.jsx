@@ -1,5 +1,5 @@
 import React from 'react'
-import Score from '../ScoreCircle/Score'
+import Score from './Score'
 
 const Cards = (props) => {
   return (

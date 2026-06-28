@@ -1,5 +1,6 @@
 import React from 'react'
 import Navbar from './Navbar'
+import logout from '../../assets/images/logout.png'
 import { usePuterStore } from "../../store/lib/puterstore";
 
 const HeroSection = () => {
@@ -9,12 +10,8 @@ const HeroSection = () => {
 
   return (
     <div className="relative">
-      <button
-        onClick={signOut}
-        className="absolute top-1 right-4 bg-red-500 rounded-2xl px-3 py-2 text-white text-xs"
-      >
-        Logout
-      </button>
+      <img src={logout} className='w-[30px] absolute right-0 top-3'
+      onClick={signOut}/>
 
       <div className="flex flex-col items-center">
         <Navbar />

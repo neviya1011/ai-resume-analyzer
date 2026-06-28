@@ -1,10 +1,14 @@
 import React, { useState } from "react";
-import Navbar from "../components/HomePage/Navbar";
-import uploadedImg from "../assets/images/upload.png"
-import { usePuterStore } from "../store/lib/puterstore";
 import { useNavigate } from "react-router-dom";
+import uploadedImg from "../assets/images/upload.png";
+import homeButton from "../assets/images/home.png";
+import AnalyzeLoader from "../components/UploadPage/AnalyzeLoader";
+import { convertPdfFirstPageToImage } from "../utils/pdfToImage";
+import { usePuterStore } from "../store/lib/puterstore";
 
 const Upload = () => {
+    const navigate = useNavigate();
+
     const { fs, kv, ai } = usePuterStore();
 
     const [companyName, setCompanyName] = useState("");
@@ -12,8 +16,8 @@ const Upload = () => {
     const [jobDescription, setJobDescription] = useState("");
     const [file, setFile] = useState(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
-
-    const navigate = useNavigate();
+    const [analysisComplete, setAnalysisComplete] = useState(false);
+    const [analysisStep, setAnalysisStep] = useState("");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -24,67 +28,202 @@ const Upload = () => {
         }
 
         setIsAnalyzing(true);
+        setAnalysisComplete(false);
+        setAnalysisStep("Uploading the file...");
 
         try {
-        const formData = {
-            companyName,
-            jobTitle,
-            jobDescription,
-            file,
-        };
+        const uploadedResult = await fs.upload(file);
 
-        console.log(formData);
+        const uploadedFile = Array.isArray(uploadedResult)
+            ? uploadedResult[0]
+            : uploadedResult;
 
-        const uploadedFiles = await fs.upload([file]);
-        const uploadedFile = uploadedFiles[0];
+        const filePath = uploadedFile?.path;
+
+        if (!filePath) {
+            throw new Error("Upload worked, but file path was not found.");
+        }
+
+        console.log("Uploaded PDF:", uploadedFile);
+
+        setAnalysisStep("Converting the file...");
+
+        const { imageFile, imageUrl } = await convertPdfFirstPageToImage(file);
+
+        console.log("Converted image file:", imageFile);
+        console.log("Converted image preview:", imageUrl);
+
+        setAnalysisStep("Uploading the image...");
+
+        const uploadedImageResult = await fs.upload(imageFile);
+
+        const uploadedImage = Array.isArray(uploadedImageResult)
+            ? uploadedImageResult[0]
+            : uploadedImageResult;
+
+        const imagePath = uploadedImage?.path;
+
+        console.log("Uploaded image:", uploadedImage);
+
+        setAnalysisStep("Preparing data...");
 
         const metadata = {
             companyName,
             jobTitle,
             jobDescription,
             fileName: file.name,
-            filePath: uploadedFile.path,
+            filePath,
+            imagePath,
             uploadedAt: new Date().toISOString(),
         };
 
-        await kv.set(`resume:${Date.now()}`, JSON.stringify(metadata));
+        console.log("Prepared metadata:", metadata);
+
+        setAnalysisStep("Analyzing...");
 
         const response = await ai.feedback(
-            uploadedFile.path,
-            `Analyze this resume for the job title "${jobTitle}" at "${companyName}". Job description: ${jobDescription}. Give an ATS score and improvement tips.`
+            filePath,
+            `
+    Analyze the uploaded resume for this job.
+
+    Company: ${companyName}
+    Job title: ${jobTitle}
+    Job description:
+    ${jobDescription}
+
+    Evaluate the actual resume content. Do not use example scores. Calculate the scores based only on the uploaded resume and job description.
+
+    Return ONLY valid JSON. Do not include markdown or explanation.
+
+    Use this exact structure, but fill every score and tip based on the uploaded resume:
+
+    {
+    "overallScore": number,
+    "ATS": {
+        "score": number,
+        "tips": [
+        "specific tip based on resume",
+        "specific tip based on resume",
+        "specific tip based on resume",
+        "specific tip based on resume"
+        ]
+    },
+    "content": {
+        "score": number,
+        "tips": [
+        "specific tip based on resume",
+        "specific tip based on resume",
+        "specific tip based on resume",
+        "specific tip based on resume"
+        ]
+    },
+    "skills": {
+        "score": number,
+        "tips": [
+        "specific tip based on resume",
+        "specific tip based on resume",
+        "specific tip based on resume",
+        "specific tip based on resume"
+        ]
+    },
+    "structure": {
+        "score": number,
+        "tips": [
+        "specific tip based on resume",
+        "specific tip based on resume",
+        "specific tip based on resume",
+        "specific tip based on resume"
+        ]
+    },
+    "toneAndStyle": {
+        "score": number,
+        "tips": [
+        "specific tip based on resume",
+        "specific tip based on resume",
+        "specific tip based on resume",
+        "specific tip based on resume"
+        ]
+    }
+    }
+    `
         );
 
-        console.log("AI Feedback:", response);
-        alert("Resume analyzed successfully!");
+        const aiText = response?.message?.content || response?.toString?.() || response;
+        const feedback = JSON.parse(aiText);
+
+        const finalResult = {
+            companyName,
+            jobTitle,
+            jobDescription,
+            resumePath: filePath,
+            imagePath,
+            feedback,
+        };
+
+        console.log("Final Resume Analysis:", finalResult);
+
+        await kv.set(`resume:${Date.now()}`, JSON.stringify(finalResult));
+
+        setAnalysisComplete(true);
+        setAnalysisStep("Analysis complete, redirecting ...");
         } catch (error) {
-        console.log(error);
-        alert("Something went wrong while analyzing the resume.");
-        } finally {
+        console.log("Analyze Error:", error);
+        alert(error.message || "Something went wrong while analyzing the resume.");
+
         setIsAnalyzing(false);
+        setAnalysisComplete(false);
+        setAnalysisStep("");
         }
     };
 
-    return (
-        <div className="upload flex items-center flex-col">
-            <div>
-                <div className="bg-white w-170 rounded-2xl p-[10px]">
-                    <div className="flex justify-between items-baseline">
-                    <h1 className="font-bold">RESUMIND</h1>
+    if (isAnalyzing) {
+        return (
+        <div className="upload w-full flex flex-col items-center overflow-hidden relative pt-5">
+            <img
+            src={homeButton}
+            alt="Home"
+            className="w-[25px] absolute left-10 top-6 cursor-pointer"
+            onClick={() => navigate("/")}
+            />
 
-                    <div className="flex gap-2">
-                        <button
-                        onClick={() => navigate("/")}
-                        className="bg-[rgb(98,109,210)] rounded-2xl px-3 py-1 text-[rgb(220,224,250)] text-xs"
-                        >
-                        Home
-                        </button>
-
-                    </div>
-                    </div>
-                </div>
+            <div className="bg-white w-170 rounded-2xl p-[10px] shrink-0">
+            <div className="flex items-center px-2">
+                <h1 className="font-bold">RESUMIND</h1>
+            </div>
             </div>
 
-        <div className="flex flex-col items-center mt-16">
+            <div className="flex-1 min-h-0 w-full flex flex-col items-center mt-10">
+            <h1 className="font-bold text-4xl text-center w-[550px] mb-1 shrink-0">
+                Smart feedback for your dream job
+            </h1>
+
+            <AnalyzeLoader
+                analysisComplete={analysisComplete}
+                analysisStep={analysisStep}
+            />
+            </div>
+        </div>
+        );
+    }
+
+    return (
+        <div className="upload min-h-screen flex items-center flex-col relative pt-4">
+        <img
+            src={homeButton}
+            alt="Home"
+            className="w-[25px] absolute left-10 top-6 cursor-pointer"
+            onClick={() => navigate("/")}
+        />
+
+        <div>
+            <div className="bg-white w-170 rounded-2xl p-[10px]">
+            <div className="flex items-center px-2">
+                <h1 className="font-bold">RESUMIND</h1>
+            </div>
+            </div>
+        </div>
+
+        <div className="flex flex-col items-center mt-10">
             <h1 className="font-bold text-4xl text-center w-[550px]">
             Smart feedback for your dream job
             </h1>
@@ -93,7 +232,10 @@ const Upload = () => {
             Drop your resume for an ATS score and improvement tips
             </p>
 
-            <form onSubmit={handleSubmit} className="w-[600px] mt-10 flex flex-col gap-5">
+            <form
+            onSubmit={handleSubmit}
+            className="w-[600px] mt-10 flex flex-col gap-5"
+            >
             <div>
                 <label className="text-sm text-gray-600">Company Name</label>
                 <input
@@ -130,26 +272,26 @@ const Upload = () => {
                 <label className="text-sm text-gray-600">Upload Resume</label>
 
                 <label className="uploadFile w-full mt-2 p-3 h-[150px] rounded-xl bg-white flex flex-col items-center justify-center cursor-pointer border border-dashed border-gray-300">
-                    <img
-                    src= {uploadedImg}
+                <img
+                    src={uploadedImg}
                     alt="Upload"
                     className="w-10 h-10 object-contain mb-3"
-                    />
+                />
 
-                    <h2 className="text-gray-600">Click to upload the files</h2>
+                <h1 className="text-sm font-semibold text-gray-700">
+                    Upload your resume
+                </h1>
 
-                    {file && (
-                    <span className="text-xs text-gray-500">
-                        {file.name}
-                    </span>
-                    )}
+                {file && (
+                    <span className="text-xs text-gray-500 mt-2">{file.name}</span>
+                )}
 
-                    <input
+                <input
                     type="file"
-                    accept=".pdf,.doc,.docx"
+                    accept=".pdf"
                     onChange={(e) => setFile(e.target.files[0])}
                     className="hidden"
-                    />
+                />
                 </label>
             </div>
 
@@ -158,7 +300,7 @@ const Upload = () => {
                 disabled={isAnalyzing}
                 className="bg-[rgb(98,109,210)] text-white rounded-2xl py-3 text-sm"
             >
-                {isAnalyzing ? "Analyzing..." : "Analyze Resume"}
+                Analyze Resume
             </button>
             </form>
         </div>

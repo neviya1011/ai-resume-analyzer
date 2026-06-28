@@ -262,20 +262,21 @@ const getPuter = () =>
         return puter.ai.chat(
         [
             {
-            role: "user",
-            content: [
-                {
-                type: "file",
-                puter_path: path,
-                },
-                {
-                type: "text",
-                text: message,
-                },
-            ],
+                role: "user",
+                content: [
+                    {
+                    type: "file",
+                    puter_path: path,
+                    },
+                    {
+                    type: "text",
+                    text: message,
+                    },
+                ],
             },
         ],
-        { model: "claude-sonnet-4" },
+        false,
+        { model: "gpt-5-nano"},
         );
     };
 

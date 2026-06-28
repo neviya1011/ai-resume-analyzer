@@ -30,7 +30,7 @@ const Auth = () => {
         disabled={isLoading}
         className="bg-[rgb(98,109,210)] rounded-2xl px-5 py-2 text-white"
       >
-        {isLoading ? "Loading..." : "Login with Puter"}
+        {isLoading ? "Loading..." : "Login"}
       </button>
     </div>
   );
