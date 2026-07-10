@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import uploadedImg from "../assets/images/upload.png";
 import homeButton from "../assets/images/home.png";
 import AnalyzeLoader from "../components/UploadPage/AnalyzeLoader";
+import ResumeReview from "../components/UploadPage/ResumeReview";
 import { convertPdfFirstPageToImage } from "../utils/pdfToImage";
 import { usePuterStore } from "../store/lib/puterstore";
 
@@ -15,9 +16,14 @@ const Upload = () => {
     const [jobTitle, setJobTitle] = useState("");
     const [jobDescription, setJobDescription] = useState("");
     const [file, setFile] = useState(null);
+
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysisComplete, setAnalysisComplete] = useState(false);
     const [analysisStep, setAnalysisStep] = useState("");
+
+    const [analysisResult, setAnalysisResult] = useState(null);
+    const [resumeImageUrl, setResumeImageUrl] = useState("");
+    const [showReview, setShowReview] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -29,6 +35,7 @@ const Upload = () => {
 
         setIsAnalyzing(true);
         setAnalysisComplete(false);
+        setShowReview(false);
         setAnalysisStep("Uploading the file...");
 
         try {
@@ -50,8 +57,16 @@ const Upload = () => {
 
         const { imageFile, imageUrl } = await convertPdfFirstPageToImage(file);
 
+        setResumeImageUrl(imageUrl);
+
         console.log("Converted image file:", imageFile);
         console.log("Converted image preview:", imageUrl);
+
+        setAnalysisStep("Reading resume text...");
+
+        const resumeText = await ai.img2txt(imageFile);
+
+        console.log("Extracted Resume Text:", resumeText);
 
         setAnalysisStep("Uploading the image...");
 
@@ -81,21 +96,23 @@ const Upload = () => {
 
         setAnalysisStep("Analyzing...");
 
-        const response = await ai.feedback(
-            filePath,
+        const response = await ai.chat(
             `
-    Analyze the uploaded resume for this job.
+    Analyze this resume for the job.
 
     Company: ${companyName}
     Job title: ${jobTitle}
     Job description:
     ${jobDescription}
 
-    Evaluate the actual resume content. Do not use example scores. Calculate the scores based only on the uploaded resume and job description.
+    Resume text:
+    ${resumeText}
+
+    Evaluate the actual resume text. Do not use example scores. Calculate the scores based only on the resume text and job description.
 
     Return ONLY valid JSON. Do not include markdown or explanation.
 
-    Use this exact structure, but fill every score and tip based on the uploaded resume:
+    Use this exact structure:
 
     {
     "overallScore": number,
@@ -148,7 +165,9 @@ const Upload = () => {
     `
         );
 
-        const aiText = response?.message?.content || response?.toString?.() || response;
+        const aiText =
+            response?.message?.content || response?.toString?.() || response;
+
         const feedback = JSON.parse(aiText);
 
         const finalResult = {
@@ -157,6 +176,7 @@ const Upload = () => {
             jobDescription,
             resumePath: filePath,
             imagePath,
+            resumeText,
             feedback,
         };
 
@@ -164,8 +184,13 @@ const Upload = () => {
 
         await kv.set(`resume:${Date.now()}`, JSON.stringify(finalResult));
 
+        setAnalysisResult(finalResult);
         setAnalysisComplete(true);
-        setAnalysisStep("Analysis complete, redirecting ...");
+        setAnalysisStep("Analysis complete, redirecting...");
+
+        setTimeout(() => {
+            setShowReview(true);
+        }, 1500);
         } catch (error) {
         console.log("Analyze Error:", error);
         alert(error.message || "Something went wrong while analyzing the resume.");
@@ -173,8 +198,19 @@ const Upload = () => {
         setIsAnalyzing(false);
         setAnalysisComplete(false);
         setAnalysisStep("");
+        setShowReview(false);
         }
     };
+
+    if (showReview && analysisResult) {
+        return (
+        <ResumeReview
+            result={analysisResult}
+            imageUrl={resumeImageUrl}
+            onBack={() => navigate("/")}
+        />
+        );
+    }
 
     if (isAnalyzing) {
         return (
@@ -192,8 +228,8 @@ const Upload = () => {
             </div>
             </div>
 
-            <div className="flex-1 min-h-0 w-full flex flex-col items-center mt-10">
-            <h1 className="font-bold text-4xl text-center w-[550px] mb-1 shrink-0">
+            <div className="flex-1 min-h-0 w-full flex flex-col items-center justify-center">
+            <h1 className="font-bold text-4xl text-center w-[550px] mb-1 shrink-0 mt-10">
                 Smart feedback for your dream job
             </h1>
 
@@ -283,7 +319,9 @@ const Upload = () => {
                 </h1>
 
                 {file && (
-                    <span className="text-xs text-gray-500 mt-2">{file.name}</span>
+                    <span className="text-xs text-gray-500 mt-2">
+                    {file.name}
+                    </span>
                 )}
 
                 <input
