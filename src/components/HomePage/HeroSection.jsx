@@ -1,17 +1,34 @@
+
 import React from 'react'
 import Navbar from './Navbar'
-import logout from '../../assets/images/logout.png'
+import { useNavigate } from "react-router-dom";
+import logout from "../../assets/images/logout.png";
 import { usePuterStore } from "../../store/lib/puterstore";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+
   const {
     auth: { signOut },
   } = usePuterStore();
 
+  const handleLogout = async () => {
+    localStorage.removeItem("resumindLoggedIn");
+
+    await signOut();
+
+    navigate("/auth");
+  };
+
   return (
     <div className="relative">
-      <img src={logout} className='w-[30px] absolute right-0 top-3'
-      onClick={signOut}/>
+
+      <img
+        src={logout}
+        alt="Logout"
+        className="w-[30px] absolute right-0 top-3 cursor-pointer"
+        onClick={handleLogout}
+      />
 
       <div className="flex flex-col items-center">
         <Navbar />
