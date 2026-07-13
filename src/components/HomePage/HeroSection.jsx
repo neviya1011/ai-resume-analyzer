@@ -1,7 +1,7 @@
 import React from 'react'
 import Navbar from './Navbar'
 import { useNavigate } from "react-router-dom";
-import logout from "../../assets/images/logout.png";
+import logout from "../../assets/Images/logout.png";
 import { usePuterStore } from "../../store/lib/puterstore";
 import gsap from "gsap";
 import { useEffect, useRef } from "react";
