@@ -14,7 +14,7 @@ import Auth from "./Routes/Auth";
 import Upload from "./Routes/Upload";
 import ResumeReview from "./components/UploadPage/ResumeReview";
 import { usePuterStore } from "./store/lib/puterstore";
-import loadingAnimation from "./assets/Images/content.json";
+import loadingAnimation from "./assets/images/content.json";
 import Build from "./Routes/Build";
 
 const LoadingResumes = () => {

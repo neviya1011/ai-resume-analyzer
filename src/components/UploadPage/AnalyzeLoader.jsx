@@ -1,6 +1,6 @@
 import React from "react";
 import { useLottie } from "lottie-react";
-import Analyze from "../../assets/Images/Document OCR Scan.json";
+import Analyze from "../../assets/images/Document OCR Scan.json";
 
 const AnalyzeLoader = ({ analysisStep }) => {
   const options = {
