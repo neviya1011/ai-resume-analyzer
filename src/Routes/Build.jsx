@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import homeIcon from "../assets/images/home.png";
+import homeIcon from "../assets/Images/home.png";
 
 const defaultData = {
   name: "",

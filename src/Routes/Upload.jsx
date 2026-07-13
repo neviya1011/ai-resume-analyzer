@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import uploadedImg from "../assets/images/upload.png";
-import homeButton from "../assets/images/home.png";
+import uploadedImg from "../assets/Images/upload.png";
+import homeButton from "../assets/Images/home.png";
 import AnalyzeLoader from "../components/UploadPage/AnalyzeLoader";
 import ResumeReview from "../components/UploadPage/ResumeReview";
 import { convertPdfFirstPageToImage } from "../utils/pdfToImage";
