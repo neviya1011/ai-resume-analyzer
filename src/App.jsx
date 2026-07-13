@@ -15,6 +15,7 @@ import Upload from "./Routes/Upload";
 import ResumeReview from "./components/UploadPage/ResumeReview";
 import { usePuterStore } from "./store/lib/puterstore";
 import loadingAnimation from "./assets/images/content.json";
+import Build from "./Routes/Build";
 
 const LoadingResumes = () => {
   const options = {
@@ -27,7 +28,7 @@ const LoadingResumes = () => {
 
   return (
     <div>
-      <HeroSection hasResumes={false} />
+      <HeroSection hasResumes={false} showCreateButton={false} />
 
       <div className="flex flex-col items-center min-h-0">
         <div className="w-[300px] h-[300px]">{View}</div>
@@ -241,6 +242,15 @@ const App = () => {
         element={
           <ProtectedRoute>
             <ResumeReviewPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/Build"
+        element={
+          <ProtectedRoute>
+            <Build />
           </ProtectedRoute>
         }
       />

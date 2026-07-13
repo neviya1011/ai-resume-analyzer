@@ -1,16 +1,31 @@
-
 import React from 'react'
 import Navbar from './Navbar'
 import { useNavigate } from "react-router-dom";
 import logout from "../../assets/images/logout.png";
 import { usePuterStore } from "../../store/lib/puterstore";
+import gsap from "gsap";
+import { useEffect, useRef } from "react";
 
-const HeroSection = () => {
+const HeroSection = ({ showCreateButton = true }) => {
   const navigate = useNavigate();
+  const buttonRef = useRef(null);
 
   const {
     auth: { signOut },
   } = usePuterStore();
+
+  useEffect(() => {
+    if (!buttonRef.current) return;
+
+    gsap.to(buttonRef.current, {
+      y: -8,
+      duration: 1.2,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut",
+      force3D: true,
+    });
+  }, []);
 
   const handleLogout = async () => {
     localStorage.removeItem("resumindLoggedIn");
@@ -41,6 +56,15 @@ const HeroSection = () => {
           <h3 className="p-2 mt-4">
             Review your submissions and check AI-powered feedback
           </h3>
+
+          {showCreateButton && (
+            <div ref={buttonRef} className="mt-5 will-change-transform">
+              <button className="bg-purple-500 p-3 rounded-2xl text-2xl font-bold text-white"
+              onClick={() => navigate("/Build")}>
+                Create Your Resume
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
