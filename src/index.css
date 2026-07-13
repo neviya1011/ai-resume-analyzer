@@ -25,8 +25,8 @@ body::-webkit-scrollbar {
 }
 
 .upload {
-    min-width: calc(100% - 40px);
-    margin: 20px;
+    min-width: calc(100% - 10px);
+    margin: 10px;
     background: linear-gradient(45deg, rgb(246,213,225), rgb(236,240,250), rgb(206,211,251));
     background-repeat:no-repeat;
 }

@@ -1,6 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import homeIcon from "../assets/images/home.png";
 
 const defaultData = {
   name: "",
@@ -54,20 +52,13 @@ const emptyItems = {
   },
 };
 
-// Returns a brand-new object with brand-new arrays every time it's called —
-// prevents the "shared array reference" bug where pushing a bullet/link onto
-// one entry silently polluted the template used by every future entry.
 const getEmptyItem = (section) =>
   JSON.parse(JSON.stringify(emptyItems[section]));
 
 const Build = () => {
-  const navigate = useNavigate();
   const pagesRef = useRef(null);
 
-  const [data, setData] = useState(() => {
-    const saved = localStorage.getItem("latexResumeData");
-    return saved ? JSON.parse(saved) : defaultData;
-  });
+  const [data, setData] = useState(defaultData);
 
   const [active, setActive] = useState({
     education: 0,
@@ -78,22 +69,13 @@ const Build = () => {
     skills: 0,
   });
 
-  // --- Pagination state (driven by actual rendered content width) ---
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    localStorage.setItem("latexResumeData", JSON.stringify(data));
-  }, [data]);
+    localStorage.removeItem("latexResumeData");
+  }, []);
 
-  // Track how many "pages" (columns) the content has actually produced,
-  // and which page is currently in view, so Prev/Next can snap exactly
-  // and disable themselves at the boundaries.
-  //
-  // NOTE: this column-based measurement is purely a SCREEN-preview concern.
-  // It has no bearing on print, which no longer uses columns at all (see
-  // the @media print block below) — print pagination is handled natively
-  // by the browser via ordinary page breaks.
   useEffect(() => {
     const pagesEl = pagesRef.current;
     if (!pagesEl) return;
@@ -130,8 +112,7 @@ const Build = () => {
       window.removeEventListener("resize", recalcPages);
       resizeObserver.disconnect();
     };
-    // Recompute whenever content changes, since that changes how many
-    // pages are needed.
+    
   }, [data]);
 
   const scrollPage = (direction) => {
@@ -168,8 +149,6 @@ const Build = () => {
     setActive({ ...active, [section]: newIndex });
   };
 
-  // Resets only the currently active entry's fields back to empty —
-  // the entry stays in place/in the list, it's just blanked out.
   const clearEntry = (section) => {
     const index = active[section];
     if (index < 0 || index >= data[section].length) return;
@@ -285,22 +264,6 @@ const Build = () => {
     );
   };
 
-  // Wipes all entered content and localStorage, then navigates home so
-  // the builder starts from a completely empty form next time it's opened.
-  const goHome = () => {
-    localStorage.removeItem("latexResumeData");
-    setData(defaultData);
-    setActive({
-      education: 0,
-      experience: 0,
-      projects: 0,
-      certifications: 0,
-      achievements: 0,
-      skills: 0,
-    });
-    navigate("/");
-  };
-
   const isPrevDisabled = page <= 0;
   const isNextDisabled = page >= totalPages - 1;
 
@@ -327,12 +290,53 @@ const Build = () => {
             cursor: not-allowed;
           }
 
+          /* --- Responsive scale for the A4 preview ---
+             The resume preview is a physical 210mm x 297mm document that
+             gets scaled down to fit the screen. Instead of hardcoding one
+             scale factor, it's driven by a CSS variable so it can shrink
+             further on small viewports without touching the print rules
+             (which reset transform/scale entirely anyway). */
+          .resume-column {
+            --scale: 0.62;
+          }
+
+          @media (max-width: 1023px) {
+            .resume-column {
+              --scale: 0.58;
+            }
+          }
+
+          @media (max-width: 767px) {
+            .resume-column {
+              --scale: 0.5;
+            }
+          }
+
+          @media (max-width: 639px) {
+            .resume-column {
+              --scale: 0.44;
+            }
+          }
+
+          @media (max-width: 479px) {
+            .resume-column {
+              --scale: 0.36;
+            }
+          }
+
+          @media (max-width: 359px) {
+            .resume-column {
+              --scale: 0.32;
+            }
+          }
+
           .resume-frame {
-            width: calc(210mm * 0.62);
-            height: calc(297mm * 0.62);
+            width: calc(210mm * var(--scale));
+            height: calc(297mm * var(--scale));
             overflow: hidden;
             background: white;
             box-shadow: 0 24px 80px rgba(15, 23, 42, 0.18);
+            max-width: 100%;
           }
 
           .resume-pages {
@@ -342,7 +346,7 @@ const Build = () => {
             overflow-y: hidden;
             scroll-behavior: smooth;
             scrollbar-width: none;
-            transform: scale(0.62);
+            transform: scale(var(--scale));
             transform-origin: top left;
           }
 
@@ -513,22 +517,16 @@ const Build = () => {
         `}
       </style>
 
-      <div className="relative flex items-center justify-center px-6 pt-6 mb-8 no-print">
-        <img
-          src={homeIcon}
-          alt="Home"
-          onClick={goHome}
-          className="w-[28px] absolute left-6 cursor-pointer"
-        />
+      <div className="relative flex items-center justify-center px-4 sm:px-6 pt-6 mb-8 no-print">
 
-        <h1 className="text-center text-3xl font-bold">
+        <h1 className="text-center text-xl sm:text-2xl md:text-3xl font-bold">
           Build Your Own Resume
         </h1>
       </div>
 
-      <div className="resume-layout grid grid-cols-1 xl:grid-cols-2 gap-6 px-6 pb-6 justify-items-center items-start min-h-0 mt-15">
-        <div className="builder no-print w-full max-w-[720px] h-[calc(100vh-45px)] overflow-y-auto bg-white rounded-2xl p-6 shadow-xl">
-          <h1 className="text-3xl font-bold mb-6 text-center">
+      <div className="resume-layout grid grid-cols-1 xl:grid-cols-2 gap-6 px-4 sm:px-6 pb-6 justify-items-center items-start min-h-0 mt-10 sm:mt-15">
+        <div className="builder no-print w-full max-w-[720px] h-[70vh] xl:h-[calc(100vh-45px)] overflow-y-auto bg-white rounded-2xl p-4 sm:p-6 shadow-xl">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 text-center">
             Resume Builder
           </h1>
 
@@ -583,7 +581,7 @@ const Build = () => {
                 </button>
 
                 {data.projects[active.projects].links.map((link, i) => (
-                  <div key={i} className="grid grid-cols-2 gap-2 mb-2">
+                  <div key={i} className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
                     <Input label="Label" value={link.label} onChange={(v) => updateProjectLink(i, "label", v)} />
                     <Input label="URL" value={link.url} onChange={(v) => updateProjectLink(i, "url", v)} />
                   </div>
@@ -635,7 +633,7 @@ const Build = () => {
           </button>
         </div>
 
-        <div className="resume-column flex flex-col items-center gap-3">
+        <div className="resume-column flex flex-col items-center gap-3 w-full">
           <div className="resume-frame">
             <div ref={pagesRef} className="resume-pages">
               <div
@@ -731,7 +729,7 @@ const Build = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 no-print">
+          <div className="flex items-center flex-wrap justify-center gap-3 no-print">
             <button
               onClick={() => scrollPage(-1)}
               className="smallBtn"
@@ -792,7 +790,7 @@ const Carousel = ({
 
   return (
     <div className="mt-8 border-t pt-5">
-      <div className="flex justify-between items-center mb-3">
+      <div className="flex justify-between items-center mb-3 flex-wrap gap-2">
         <h2 className="font-bold text-xl">{title}</h2>
 
         <button onClick={() => addEntry(section)} className="smallBtn">
@@ -805,9 +803,9 @@ const Carousel = ({
           No {title} added yet.
         </div>
       ) : (
-        <div className="border rounded-xl p-5 bg-gray-50">
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex gap-2">
+        <div className="border rounded-xl p-3 sm:p-5 bg-gray-50">
+          <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
+            <div className="flex gap-2 flex-wrap">
               <button onClick={() => goPrev(section)} className="smallBtn">
                 Prev
               </button>
@@ -826,7 +824,7 @@ const Carousel = ({
             </button>
           </div>
 
-          <div className="flex gap-2 justify-end mb-4">
+          <div className="flex gap-2 flex-wrap justify-end mb-4">
             <button onClick={() => moveEntry(section, -1)} className="smallBtn">
               Move Up
             </button>
@@ -860,7 +858,7 @@ const BulletForm = ({ bullets, onAdd, onChange, onRemove }) => (
           className="w-full border rounded-lg px-3 py-2 outline-none focus:border-purple-500"
         />
 
-        <button onClick={() => onRemove(i)} className="smallBtn bg-red-500">
+        <button onClick={() => onRemove(i)} className="smallBtn bg-red-500 shrink-0">
           Remove
         </button>
       </div>

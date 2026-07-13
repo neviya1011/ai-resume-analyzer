@@ -30,8 +30,10 @@ const LoadingResumes = () => {
     <div>
       <HeroSection hasResumes={false} showCreateButton={false} />
 
-      <div className="flex flex-col items-center min-h-0">
-        <div className="w-[300px] h-[300px]">{View}</div>
+      <div className="flex flex-col items-center min-h-0 px-4">
+        <div className="w-[180px] h-[180px] sm:w-[240px] sm:h-[240px] md:w-[300px] md:h-[300px]">
+          {View}
+        </div>
       </div>
     </div>
   );
@@ -46,7 +48,7 @@ const ResumeReviewPage = () => {
 
   if (!result) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center px-4 text-center">
         Resume data not found.
       </div>
     );
@@ -136,7 +138,7 @@ const Home = () => {
       console.log("Failed to delete resume:", error);
       alert("Could not delete the resume.");
     }
-};
+  };
 
   if (isLoadingResumes) {
     return <LoadingResumes />;
@@ -147,13 +149,13 @@ const Home = () => {
       <HeroSection hasResumes={resumes.length > 0} />
 
       {resumes.length === 0 ? (
-        <div className="flex flex-col items-center mt-8">
-          <p className="text-gray-600 text-lg text-center w-[420px]">
+        <div className="flex flex-col items-center mt-8 px-4">
+          <p className="text-gray-600 text-base sm:text-lg text-center w-full max-w-[420px]">
             No resumes found. Upload your first resume to get feedback.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-20 justify-items-center mt-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10 lg:gap-20 justify-items-center mt-10 px-4">
           {resumes.map((elem, index) => (
             <Cards
               key={elem.key || index}
@@ -188,7 +190,7 @@ const ProtectedRoute = ({ children }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center px-4 text-center">
         Loading...
       </div>
     );

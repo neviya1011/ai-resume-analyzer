@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import uploadedImg from "../assets/images/upload.png";
-import homeButton from "../assets/images/home.png";
 import AnalyzeLoader from "../components/UploadPage/AnalyzeLoader";
 import ResumeReview from "../components/UploadPage/ResumeReview";
 import { convertPdfFirstPageToImage } from "../utils/pdfToImage";
@@ -214,22 +213,20 @@ const Upload = () => {
 
     if (isAnalyzing) {
         return (
-        <div className="upload w-full flex flex-col items-center overflow-hidden relative pt-5">
-            <img
-            src={homeButton}
-            alt="Home"
-            className="w-[25px] absolute left-10 top-6 cursor-pointer"
-            onClick={() => navigate("/")}
-            />
+        <div className="upload w-full flex flex-col items-center overflow-hidden relative pt-4 px-4 sm:px-6">
 
-            <div className="bg-white w-170 rounded-2xl p-[10px] shrink-0">
-            <div className="flex items-center px-2">
-                <h1 className="font-bold">RESUMIND</h1>
-            </div>
+            <div className="relative flex justify-center items-center w-full">
+                <div className="w-full max-w-[min(680px,calc(100%-56px))]">
+                    <div className="bg-white rounded-2xl p-[10px] shrink-0">
+                        <div className="flex items-center px-2">
+                            <h1 className="font-bold text-sm sm:text-base">RESUMIND</h1>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div className="flex-1 min-h-0 w-full flex flex-col items-center justify-center">
-            <h1 className="font-bold text-4xl text-center w-[550px] mb-1 shrink-0 mt-10">
+            <h1 className="font-bold text-2xl sm:text-3xl md:text-4xl text-center w-full max-w-[550px] mb-1 shrink-0 mt-10">
                 Smart feedback for your dream job
             </h1>
 
@@ -243,34 +240,30 @@ const Upload = () => {
     }
 
     return (
-        <div className="upload min-h-screen flex items-center flex-col relative pt-4">
-        <img
-            src={homeButton}
-            alt="Home"
-            className="w-[25px] absolute left-10 top-6 cursor-pointer"
-            onClick={() => navigate("/")}
-        />
+        <div className="upload min-h-screen flex items-center flex-col relative pt-4 px-4 pl-1 pr-4 sm:pl-2 sm:pr-6 ">
 
-        <div>
-            <div className="bg-white w-170 rounded-2xl p-[10px]">
-            <div className="flex items-center px-2">
-                <h1 className="font-bold">RESUMIND</h1>
-            </div>
+        <div className="relative flex justify-center items-center w-full">
+            <div className="w-full max-w-[min(680px,calc(100%-56px))]">
+                <div className="bg-white rounded-2xl p-[10px]">
+                    <div className="flex items-center px-2">
+                        <h1 className="font-bold text-sm sm:text-base">RESUMIND</h1>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div className="flex flex-col items-center mt-10">
-            <h1 className="font-bold text-4xl text-center w-[550px]">
+        <div className="flex flex-col items-center mt-10 w-full">
+            <h1 className="font-bold text-2xl sm:text-3xl md:text-4xl text-center w-full max-w-[550px]">
             Smart feedback for your dream job
             </h1>
 
-            <p className="mt-5 text-gray-600 text-[20px]">
+            <p className="mt-5 text-gray-600 text-sm sm:text-base md:text-[20px] text-center">
             Drop your resume for an ATS score and improvement tips
             </p>
 
             <form
             onSubmit={handleSubmit}
-            className="w-[600px] mt-10 flex flex-col gap-5"
+            className="w-full max-w-[600px] mt-10 flex flex-col gap-5"
             >
             <div>
                 <label className="text-sm text-gray-600">Company Name</label>
@@ -307,19 +300,19 @@ const Upload = () => {
             <div>
                 <label className="text-sm text-gray-600">Upload Resume</label>
 
-                <label className="uploadFile w-full mt-2 p-3 h-[150px] rounded-xl bg-white flex flex-col items-center justify-center cursor-pointer border border-dashed border-gray-300">
+                <label className="uploadFile w-full mt-2 p-3 h-[130px] sm:h-[150px] rounded-xl bg-white flex flex-col items-center justify-center cursor-pointer border border-dashed border-gray-300">
                 <img
                     src={uploadedImg}
                     alt="Upload"
-                    className="w-10 h-10 object-contain mb-3"
+                    className="w-8 h-8 sm:w-10 sm:h-10 object-contain mb-3"
                 />
 
-                <h1 className="text-sm font-semibold text-gray-700">
+                <h1 className="text-sm font-semibold text-gray-700 text-center">
                     Upload your resume
                 </h1>
 
                 {file && (
-                    <span className="text-xs text-gray-500 mt-2">
+                    <span className="text-xs text-gray-500 mt-2 text-center break-all px-2">
                     {file.name}
                     </span>
                 )}
