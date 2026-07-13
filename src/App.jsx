@@ -151,13 +151,6 @@ const Home = () => {
           <p className="text-gray-600 text-lg text-center w-[420px]">
             No resumes found. Upload your first resume to get feedback.
           </p>
-
-          <button
-            onClick={() => navigate("/upload")}
-            className="mt-16 bg-[rgb(98,109,210)] rounded-2xl px-4 py-2 text-white text-sm"
-          >
-            Upload Resume
-          </button>
         </div>
       ) : (
         <div className="grid grid-cols-3 gap-20 justify-items-center mt-10">
