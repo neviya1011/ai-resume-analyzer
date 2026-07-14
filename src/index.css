@@ -6,7 +6,7 @@
 }
 
 html{
- min-height: 100vh;
+  min-height: 100vh;
 }
 
 body{
@@ -17,10 +17,7 @@ body{
     overflow-y: auto;
 }
 
-body::-webkit-scrollbar {
-  display: none;
-}
-.builder::-webkit-scrollbar {
+body::-webkit-scrollbar, .builder::-webkit-scrollbar, .auth::-webkit-scrollbar, .job::-webkit-scrollbar, .info::-webkit-scrollbar {
   display: none;
 }
 

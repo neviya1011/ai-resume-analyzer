@@ -6,7 +6,7 @@ import { usePuterStore } from "../../store/lib/puterstore";
 import gsap from "gsap";
 import { useEffect, useRef } from "react";
 
-const HeroSection = ({ showCreateButton = true }) => {
+const HeroSection = ({ showCreateButton = true , fullName } ) => {
   const navigate = useNavigate();
   const buttonRef = useRef(null);
 
@@ -67,7 +67,7 @@ const HeroSection = ({ showCreateButton = true }) => {
                 className="bg-purple-500 px-5 py-2 sm:p-3 rounded-2xl text-base sm:text-xl md:text-2xl font-bold text-white"
                 onClick={() => navigate("/Build")}
               >
-                Create Your Resume
+                {fullName || "Guest"}, Let's Build Your Dream Job's Resume
               </button>
             </div>
           )}

@@ -14,22 +14,22 @@ const sections = [
     const feedback = result.feedback;
 
     return (
-        <div className="min-h-screen py-2">
-        <div className="relative flex items-center justify-center mb-20">
+        <div className="min-h-screen py-2 px-4 sm:px-6 lg:px-8">
+        <div className="relative flex items-center justify-center mb-8 lg:mb-20">
             <button
                 onClick={onBack}
-                className="absolute left-0 text-sm bg-purple-300 px-3 py-3 rounded-2xl"
+                className="absolute left-0 text-xs sm:text-sm bg-purple-300 px-2.5 py-2 sm:px-3 sm:py-3 rounded-2xl"
             >
                 Back to Homepage
             </button>
 
-            <h1 className="font-bold text-3xl">Resume Review</h1>
+            <h1 className="font-bold text-xl sm:text-2xl lg:text-3xl text-center px-16 sm:px-20">Resume Review</h1>
         </div>
 
 
-        <div className="grid grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
             <div className="flex justify-center">
-            <div className="w-[600px] h-[800px] bg-white rounded-xl shadow-lg overflow-hidden border">
+            <div className="w-full max-w-[600px] aspect-[3/4] lg:h-[800px] bg-white rounded-xl shadow-lg overflow-hidden border">
                 <img
                 src={imageUrl}
                 alt="Resume preview"
@@ -39,12 +39,12 @@ const sections = [
             </div>
 
             <div>
-            <div className="bg-white rounded-xl shadow-md p-5 mb-5">
-                <div className="flex items-center gap-5 mb-5">
+            <div className="bg-white rounded-xl shadow-md p-4 sm:p-5 mb-5">
+                <div className="flex items-center gap-4 sm:gap-5 mb-5">
                 <Score score={feedback.overallScore} />
 
                 <div>
-                    <h2 className="font-bold text-xl">Your Resume Score</h2>
+                    <h2 className="font-bold text-lg sm:text-xl">Your Resume Score</h2>
                     <p className="text-sm text-gray-500">
                     This score is calculated based on the resume analysis below.
                     </p>
@@ -64,8 +64,8 @@ const sections = [
                 ))}
             </div>
 
-            <div className="bg-green-50 rounded-xl shadow-md p-5 mb-5">
-                <h2 className="font-bold text-xl mb-3">
+            <div className="bg-green-50 rounded-xl shadow-md p-4 sm:p-5 mb-5">
+                <h2 className="font-bold text-lg sm:text-xl mb-3">
                 ATS Score - {feedback.ATS?.score}/100
                 </h2>
 
@@ -99,20 +99,20 @@ const sections = [
                         onClick={() =>
                         setOpenSection(isOpen ? "" : section.key)
                         }
-                        className="w-full flex justify-between items-center px-5 py-4"
+                        className="w-full flex justify-between items-center gap-2 px-4 sm:px-5 py-4"
                     >
-                        <div className="flex items-center gap-3">
-                        <span className="font-semibold">{section.label}</span>
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                        <span className="font-semibold truncate">{section.label}</span>
+                        <span className="shrink-0 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
                             {data?.score}/100
                         </span>
                         </div>
 
-                        <span>{isOpen ? "⌃" : "⌄"}</span>
+                        <span className="shrink-0">{isOpen ? "⌃" : "⌄"}</span>
                     </button>
 
                     {isOpen && (
-                        <div className="px-5 pb-5 flex flex-col gap-3">
+                        <div className="px-4 sm:px-5 pb-5 flex flex-col gap-3">
                         {data?.tips?.map((tip, index) => (
                             <div
                             key={index}

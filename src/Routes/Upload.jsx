@@ -293,7 +293,7 @@ const Upload = () => {
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
                 placeholder="Job Description"
-                className="w-full mt-2 p-3 rounded-xl bg-white outline-none h-32 resize-none"
+                className="job w-full mt-2 p-3 rounded-xl bg-white outline-none h-32 resize-none"
                 />
             </div>
 

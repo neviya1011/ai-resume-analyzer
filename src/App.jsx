@@ -12,6 +12,7 @@ import HeroSection from "./components/HomePage/HeroSection";
 import Cards from "./components/HomePage/Cards";
 import Auth from "./Routes/Auth";
 import Upload from "./Routes/Upload";
+import Info from "./Routes/Info";
 import ResumeReview from "./components/UploadPage/ResumeReview";
 import { usePuterStore } from "./store/lib/puterstore";
 import loadingAnimation from "./assets/images/content.json";
@@ -28,7 +29,7 @@ const LoadingResumes = () => {
 
   return (
     <div>
-      <HeroSection hasResumes={false} showCreateButton={false} />
+      <HeroSection hasResumes={false} showCreateButton={false}  />
 
       <div className="flex flex-col items-center min-h-0 px-4">
         <div className="w-[180px] h-[180px] sm:w-[240px] sm:h-[240px] md:w-[300px] md:h-[300px]">
@@ -66,6 +67,7 @@ const ResumeReviewPage = () => {
 const Home = () => {
   const navigate = useNavigate();
   const { kv, fs } = usePuterStore();
+  const fullName = localStorage.getItem("resumindCurrentUser");
 
   const [resumes, setResumes] = useState([]);
   const [isLoadingResumes, setIsLoadingResumes] = useState(true);
@@ -146,7 +148,7 @@ const Home = () => {
 
   return (
     <div>
-      <HeroSection hasResumes={resumes.length > 0} />
+      <HeroSection hasResumes={resumes.length > 0} fullName={fullName} />
 
       {resumes.length === 0 ? (
         <div className="flex flex-col items-center mt-8 px-4">
@@ -203,6 +205,19 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
+const RootRoute = () => {
+  const {
+    isLoading,
+    auth: { isAuthenticated },
+  } = usePuterStore();
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  return isAuthenticated ? <Home /> : <Navigate to="/info" replace />;
+};
+
 const App = () => {
   const init = usePuterStore((state) => state.init);
 
@@ -212,44 +227,37 @@ const App = () => {
 
   return (
     <Routes>
-      <Route path="/auth" element={<Auth />} />
+  <Route path="/" element={<RootRoute />} />
+  <Route path="/info" element={<Info />} />
+  <Route path="/auth" element={<Auth />} />
 
-      <Route
-        path="/upload"
-        element={
-          <ProtectedRoute>
-            <Upload />
-          </ProtectedRoute>
-        }
-      />
+  <Route
+    path="/upload"
+    element={
+      <ProtectedRoute>
+        <Upload />
+      </ProtectedRoute>
+    }
+  />
 
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Home />
-          </ProtectedRoute>
-        }
-      />
+  <Route
+    path="/resume-review"
+    element={
+      <ProtectedRoute>
+        <ResumeReviewPage />
+      </ProtectedRoute>
+    }
+  />
 
-      <Route
-        path="/resume-review"
-        element={
-          <ProtectedRoute>
-            <ResumeReviewPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/Build"
-        element={
-          <ProtectedRoute>
-            <Build />
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
+  <Route
+    path="/Build"
+    element={
+      <ProtectedRoute>
+        <Build />
+      </ProtectedRoute>
+    }
+  />
+</Routes>
   );
 };
 
